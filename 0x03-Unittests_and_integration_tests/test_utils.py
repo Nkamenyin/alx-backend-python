@@ -18,7 +18,7 @@ class TestAccessNestedMap(unittest.TestCase):
     """
     TestCase for the access_nested_map function.
 
-    Tests both successful access and exception raising for invalid keys.
+    Tests successful access and raises exceptions for invalid keys.
     """
 
     @parameterized.expand([
@@ -31,9 +31,9 @@ class TestAccessNestedMap(unittest.TestCase):
         Test that access_nested_map returns the expected result for valid inputs.
 
         Args:
-            nested_map (dict): The nested dictionary to access.
-            path (tuple): Tuple of keys representing the path to the value.
-            expected: The expected value returned by access_nested_map.
+            nested_map (dict): Nested dictionary to access.
+            path (tuple): Keys representing the path to the value.
+            expected: Expected return value from access_nested_map.
         """
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
@@ -44,12 +44,12 @@ class TestAccessNestedMap(unittest.TestCase):
     def test_access_nested_map_exception(self, nested_map, path, expected_key):
         """
         Test that access_nested_map raises KeyError with the correct message
-        when a key in the path does not exist.
+        when a key is missing in the path.
 
         Args:
-            nested_map (dict): The nested dictionary to access.
-            path (tuple): Tuple of keys representing the path to the value.
-            expected_key (str): The key expected to be missing and raised in KeyError.
+            nested_map (dict): Nested dictionary to access.
+            path (tuple): Keys representing the path to the value.
+            expected_key (str): The missing key expected to raise KeyError.
         """
         with self.assertRaises(KeyError) as cm:
             access_nested_map(nested_map, path)
@@ -72,8 +72,8 @@ class TestGetJson(unittest.TestCase):
 
         Args:
             test_url (str): The URL to fetch.
-            test_payload (dict): The expected JSON payload to be returned.
-            mock_get (Mock): The mocked requests.get function.
+            test_payload (dict): Expected JSON payload to be returned.
+            mock_get (Mock): Mocked requests.get function.
         """
         mock_response = Mock()
         mock_response.json.return_value = test_payload
