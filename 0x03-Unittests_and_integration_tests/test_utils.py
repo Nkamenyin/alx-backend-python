@@ -28,7 +28,8 @@ class TestAccessNestedMap(unittest.TestCase):
     ])
     def test_access_nested_map(self, nested_map, path, expected):
         """
-        Test that access_nested_map returns the expected result for valid inputs.
+        Test that access_nested_map
+        returns the expected result for valid inputs.
 
         Args:
             nested_map (dict): Nested dictionary to access.
@@ -68,7 +69,8 @@ class TestGetJson(unittest.TestCase):
     @patch('utils.requests.get')
     def test_get_json(self, test_url, test_payload, mock_get):
         """
-        Test that get_json returns the expected payload by mocking requests.get.
+        Test that get_json returns
+        the expected payload by mocking requests.get.
 
         Args:
             test_url (str): The URL to fetch.
