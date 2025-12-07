@@ -13,14 +13,14 @@ from client import GithubOrgClient
 class TestGithubOrgClient(unittest.TestCase):
     """Unit tests for GithubOrgClient"""
 
-    #
-    # 1️⃣ Test org property
-    #
+
+    # 1Test org property
+    
     @parameterized.expand([
         ("google",),
         ("abc",)
     ])
-    @patch('client.get_json')
+    @patch("client.get_json")
     def test_org(self, org_name, mock_get_json):
         """Test that GithubOrgClient.org returns correct data"""
         mock_response = {"login": org_name}
@@ -34,9 +34,9 @@ class TestGithubOrgClient(unittest.TestCase):
         )
         self.assertEqual(result, mock_response)
 
-    #
-    # 2️⃣ Test _public_repos_url
-    #
+    
+    # Test _public_repos_url
+
     def test_public_repos_url(self):
         """Test that _public_repos_url returns correct URL from payload"""
         mock_payload = {
@@ -49,9 +49,9 @@ class TestGithubOrgClient(unittest.TestCase):
 
             self.assertEqual(result, mock_payload["repos_url"])
 
-    #
-    # 3️⃣ Test public_repos()
-    #
+    
+    #  Test public_repos()
+    
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
         """Unit-test GithubOrgClient.public_repos"""
@@ -75,8 +75,29 @@ class TestGithubOrgClient(unittest.TestCase):
 
             expected_repos = ["repo1", "repo2", "repo3"]
             self.assertEqual(result, expected_repos)
-            # Ensure JSON fetch
+
             mock_get_json.assert_called_once_with(mocked_url)
+
+    
+    #  Test has_license()
+    
+    @parameterized.expand([
+        (
+            {"license": {"key": "my_license"}},
+            "my_license",
+            True
+        ),
+        (
+            {"license": {"key": "other_license"}},
+            "my_license",
+            False
+        ),
+    ])
+    def test_has_license(self, repo, license_key, expected):
+        """Unit-test GithubOrgClient.has_license"""
+
+        result = GithubOrgClient.has_license(repo, license_key)
+        self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":
