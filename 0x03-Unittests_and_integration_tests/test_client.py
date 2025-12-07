@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Unit tests for GithubOrgClient.
+"""
+
 import unittest
 from unittest.mock import patch
 from parameterized import parameterized
@@ -26,7 +30,7 @@ class TestGithubOrgClient(unittest.TestCase):
         result = client.org
 
         mock_get_json.assert_called_once_with(
-            f"https://api.github.com/orgs/{org_name}"
+            "https://api.github.com/orgs/{}".format(org_name)
         )
         self.assertEqual(result, mock_response)
 
@@ -35,7 +39,9 @@ class TestGithubOrgClient(unittest.TestCase):
     #
     def test_public_repos_url(self):
         """Test that _public_repos_url returns correct URL from payload"""
-        mock_payload = {"repos_url": "https://api.github.com/orgs/testorg/repos"}
+        mock_payload = {
+            "repos_url": "https://api.github.com/orgs/testorg/repos"
+        }
 
         with patch.object(GithubOrgClient, "org", new=mock_payload):
             client = GithubOrgClient("testorg")
@@ -50,7 +56,6 @@ class TestGithubOrgClient(unittest.TestCase):
     def test_public_repos(self, mock_get_json):
         """Unit-test GithubOrgClient.public_repos"""
 
-        # Mock list of repos returned by get_json
         mock_payload = [
             {"name": "repo1"},
             {"name": "repo2"},
@@ -60,16 +65,17 @@ class TestGithubOrgClient(unittest.TestCase):
 
         mocked_url = "https://api.github.com/orgs/testorg/repos"
 
-        # Patch _public_repos_url so the client hits this URL
-        with patch.object(GithubOrgClient, "_public_repos_url", new=mocked_url):
-
+        with patch.object(
+            GithubOrgClient,
+            "_public_repos_url",
+            new=mocked_url
+        ):
             client = GithubOrgClient("testorg")
             result = client.public_repos()
 
             expected_repos = ["repo1", "repo2", "repo3"]
             self.assertEqual(result, expected_repos)
-
-            # Ensure JSON fetch was done once with correct URL
+            # Ensure JSON fetch
             mock_get_json.assert_called_once_with(mocked_url)
 
 
