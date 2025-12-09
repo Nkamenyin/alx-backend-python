@@ -1,24 +1,39 @@
 #!/usr/bin/env python3
 """
-Integration tests for GithubOrgClient.public_repos
+Unit and Integration tests for GithubOrgClient
 """
 
 import unittest
 from unittest.mock import patch, Mock
-from parameterized import parameterized_class
-
+from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 
 
-@parameterized_class([
-    {
-        "org_payload": org_payload,
-        "repos_payload": repos_payload,
-        "expected_repos": expected_repos,
-        "apache2_repos": apache2_repos,
-    }
-])
+# ========================
+# Unit tests
+# ========================
+class TestGithubOrgClient(unittest.TestCase):
+    """Unit tests for GithubOrgClient"""
+
+    @parameterized.expand([
+        ({"license": {"key": "my_license"}}, "my_license", True),
+        ({"license": {"key": "other_license"}}, "my_license", False),
+    ])
+    def test_has_license(self, repo, license_key, expected):
+        """Test GithubOrgClient.has_license returns correct boolean"""
+        self.assertEqual(GithubOrgClient.has_license(repo, license_key), expected)
+
+
+# ========================
+# Integration tests
+# ========================
+@parameterized_class([{
+    "org_payload": org_payload,
+    "repos_payload": repos_payload,
+    "expected_repos": expected_repos,
+    "apache2_repos": apache2_repos,
+}])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient.public_repos"""
 
@@ -35,9 +50,9 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
                 mock_response.json.return_value = None
             return mock_response
 
-        # Store patcher as class attribute to satisfy grader
+
         cls.get_patcher = patch("requests.get", side_effect=mocked_get)
-        cls.get_patcher.start()
+        cls.mock_get = cls.get_patcher.start()
 
     @classmethod
     def tearDownClass(cls):
@@ -52,10 +67,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     def test_public_repos_with_license(self):
         """Test public_repos with apache license"""
         client = GithubOrgClient("google")
-        self.assertEqual(
-            client.public_repos(license="apache-2.0"),
-            self.apache2_repos
-        )
+        self.assertEqual(client.public_repos(license="apache-2.0"), self.apache2_repos)
 
 
 if __name__ == "__main__":
