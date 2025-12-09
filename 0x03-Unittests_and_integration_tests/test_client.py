@@ -15,7 +15,6 @@ from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 class TestGithubOrgClient(unittest.TestCase):
     """Unit tests for GithubOrgClient"""
 
-    # Test org property
     @parameterized.expand([
         ("google",),
         ("abc",)
@@ -34,7 +33,6 @@ class TestGithubOrgClient(unittest.TestCase):
         )
         self.assertEqual(result, mock_response)
 
-    # Test _public_repos_url
     def test_public_repos_url(self):
         """Test that _public_repos_url returns correct URL from payload"""
         mock_payload = {"repos_url": "https://api.github.com/orgs/testorg/repos"}
@@ -44,7 +42,6 @@ class TestGithubOrgClient(unittest.TestCase):
             result = client._public_repos_url
             self.assertEqual(result, mock_payload["repos_url"])
 
-    # Test public_repos()
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
         """Unit-test GithubOrgClient.public_repos"""
@@ -107,16 +104,22 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """Stop requests.get patcher"""
+        """Stop patcher"""
         cls.get_patcher.stop()
 
     def test_public_repos(self):
-        """Test public_repos integration"""
+        """
+        Integration test for GithubOrgClient.public_repos
+        Ensures the method returns all repos as expected from fixtures
+        """
         client = GithubOrgClient("google")
         self.assertEqual(client.public_repos(), self.expected_repos)
 
     def test_public_repos_with_license(self):
-        """Test public_repos with apache license"""
+        """
+        Integration test for GithubOrgClient.public_repos filtering by license
+        Ensures the method returns only repos with apache-2.0 license
+        """
         client = GithubOrgClient("google")
         self.assertEqual(client.public_repos(license="apache-2.0"), self.apache2_repos)
 
