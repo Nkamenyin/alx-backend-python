@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 """
-Unit and integration tests for GithubOrgClient.
+Unit and Integration tests for GithubOrgClient
 """
 
 import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized, parameterized_class
+
 from client import GithubOrgClient
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 
 
-# ----------------------------
-# Unit tests
-# ----------------------------
+# ---------------- Unit Tests ----------------
 class TestGithubOrgClient(unittest.TestCase):
     """Unit tests for GithubOrgClient"""
 
@@ -24,9 +23,13 @@ class TestGithubOrgClient(unittest.TestCase):
     def test_org(self, org_name, mock_get_json):
         mock_response = {"login": org_name}
         mock_get_json.return_value = mock_response
+
         client = GithubOrgClient(org_name)
         result = client.org
-        mock_get_json.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
+
+        mock_get_json.assert_called_once_with(
+            f"https://api.github.com/orgs/{org_name}"
+        )
         self.assertEqual(result, mock_response)
 
     def test_public_repos_url(self):
@@ -41,6 +44,7 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_payload = [{"name": "repo1"}, {"name": "repo2"}, {"name": "repo3"}]
         mock_get_json.return_value = mock_payload
         mocked_url = "https://api.github.com/orgs/testorg/repos"
+
         with patch.object(GithubOrgClient, "_public_repos_url", new=mocked_url):
             client = GithubOrgClient("testorg")
             result = client.public_repos()
@@ -56,23 +60,21 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(result, expected)
 
 
-# ----------------------------
-# Integration tests
-# ----------------------------
-@parameterized_class([{
-    "org_payload": org_payload,
-    "repos_payload": repos_payload,
-    "expected_repos": expected_repos,
-    "apache2_repos": apache2_repos
-}])
+# ---------------- Integration Tests ----------------
+@parameterized_class([
+    {
+        "org_payload": org_payload,
+        "repos_payload": repos_payload,
+        "expected_repos": expected_repos,
+        "apache2_repos": apache2_repos
+    }
+])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient.public_repos"""
 
-    # Must have self.get_patcher as class attribute
-    get_patcher = None
-
     @classmethod
     def setUpClass(cls):
+        """Start patching requests.get"""
         def mocked_get(url, *args, **kwargs):
             mock_response = Mock()
             if url == "https://api.github.com/orgs/google":
@@ -88,6 +90,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        """Stop patcher"""
         cls.get_patcher.stop()
 
     def test_public_repos(self):
