@@ -24,41 +24,33 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Mock requests.get for integration testing"""
-
-        def mocked_get(url):
+        """Start patching requests.get"""
+        # Patch requests.get and save patcher object
+        def mocked_get(url, *args, **kwargs):
             mock_response = Mock()
-
             if url == "https://api.github.com/orgs/google":
                 mock_response.json.return_value = cls.org_payload
             elif url == cls.org_payload["repos_url"]:
                 mock_response.json.return_value = cls.repos_payload
             else:
                 mock_response.json.return_value = None
-
             return mock_response
 
-        # ✅ ✅ ✅ THIS IS THE FIX THAT MAKES THE CHECKER PASS
-        cls.get_patcher = patch(
-            "client.requests.get",
-            side_effect=mocked_get
-        )
+        cls.get_patcher = patch("requests.get", side_effect=mocked_get)
         cls.mock_get = cls.get_patcher.start()
 
     @classmethod
     def tearDownClass(cls):
-        """Stop requests.get patcher"""
+        """Stop patcher"""
         cls.get_patcher.stop()
 
     def test_public_repos(self):
         """Test public_repos integration"""
-
         client = GithubOrgClient("google")
         self.assertEqual(client.public_repos(), self.expected_repos)
 
     def test_public_repos_with_license(self):
         """Test public_repos with apache license"""
-
         client = GithubOrgClient("google")
         self.assertEqual(
             client.public_repos(license="apache-2.0"),
