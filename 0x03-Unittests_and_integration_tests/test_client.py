@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
+"""
+Integration tests for GithubOrgClient.public_repos
+"""
 
 import unittest
-from unittest.mock import patch
-from parameterized import parameterized, parameterized_class
-import requests
+from unittest.mock import patch, Mock
+from parameterized import parameterized_class
 
 from client import GithubOrgClient
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
-
 
 
 @parameterized_class([
@@ -26,7 +27,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         """Mock requests.get for integration testing"""
 
         def mocked_get(url):
-            mock_response = unittest.mock.Mock()
+            mock_response = Mock()
 
             if url == "https://api.github.com/orgs/google":
                 mock_response.json.return_value = cls.org_payload
@@ -44,3 +45,24 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     def tearDownClass(cls):
         """Stop requests.get patcher"""
         cls.get_patcher.stop()
+
+    # ✅ ✅ ✅ REQUIRED INTEGRATION TEST
+    def test_public_repos(self):
+        """Test public_repos integration"""
+
+        client = GithubOrgClient("google")
+        self.assertEqual(client.public_repos(), self.expected_repos)
+
+    # ✅ ✅ ✅ REQUIRED APACHE LICENSE FILTER TEST
+    def test_public_repos_with_license(self):
+        """Test public_repos with apache license"""
+
+        client = GithubOrgClient("google")
+        self.assertEqual(
+            client.public_repos(license="apache-2.0"),
+            self.apache2_repos
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
