@@ -950,11 +950,24 @@ TEST_PAYLOAD = [
 ]
 
 #added
+# fixtures.py
 
-org_payload = {"repos_url": "https://api.github.com/orgs/google/repos"}
+# Organization payload fixture
+org_payload = {
+    "login": "google",
+    "id": 1,
+    "repos_url": "https://api.github.com/orgs/google/repos",
+}
+
+# Repository payload fixture
 repos_payload = [
     {"name": "repo1", "license": {"key": "apache-2.0"}},
     {"name": "repo2", "license": {"key": "mit"}},
 ]
+
+# Expected list of repository names (all)
 expected_repos = ["repo1", "repo2"]
+
+# Expected list of repository names with apache-2.0 license
 apache2_repos = ["repo1"]
+
